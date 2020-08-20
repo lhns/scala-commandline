@@ -14,6 +14,7 @@ libraryDependencies += "de.lolhens" %% "scala-commandline" % "0.0.1"
 ```scala
 case class Options(help: Boolean,
                    version: Boolean,
+                   logLevel: String,
                    decode: Boolean,
                    validate: Boolean,
                    params: Seq[String])
@@ -24,12 +25,14 @@ def main(args: Array[String]): Unit = {
       empty <- CommandLine.isEmpty
       help <- CommandLine.opt("-h", "--help").flag
       version <- CommandLine.opt("-v", "--version").flag
+      logLevel <- CommandLine.opt("--loglevel").arg.map(_.lastOption)
       decode <- CommandLine.opt("-d", "--decode").flag
       validate <- CommandLine.opt("--validate").flag
       params <- CommandLine.args
     } yield Options(
       help = empty || help,
       version = version,
+      logLevel = logLevel,
       decode = decode,
       validate = validate,
       params = params
