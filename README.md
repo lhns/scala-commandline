@@ -3,11 +3,39 @@
 [![Maven Central](https://img.shields.io/maven-central/v/de.lolhens/scala-commandline_2.13)](https://search.maven.org/artifact/de.lolhens/scala-commandline_2.13)
 [![Apache License 2.0](https://img.shields.io/github/license/LolHens/scala-commandline.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
 
-A small command line parser library written in scala
+A small state-monad-based command line parser library written in scala
 
 ### build.sbt
 ```sbt
 libraryDependencies += "de.lolhens" %% "scala-commandline" % "0.0.1"
+```
+
+## Example
+```scala
+case class Options(help: Boolean,
+                   version: Boolean,
+                   decode: Boolean,
+                   validate: Boolean,
+                   params: Seq[String])
+
+def main(args: Array[String]): Unit = {
+  val options: Options = CommandLine(args) {
+    for {
+      empty <- CommandLine.isEmpty
+      help <- CommandLine.opt("-h", "--help").flag
+      version <- CommandLine.opt("-v", "--version").flag
+      decode <- CommandLine.opt("-d", "--decode").flag
+      validate <- CommandLine.opt("--validate").flag
+      params <- CommandLine.args
+    } yield Options(
+      help = empty || help,
+      version = version,
+      decode = decode,
+      validate = validate,
+      params = params
+    )
+  }
+}
 ```
 
 ## License
