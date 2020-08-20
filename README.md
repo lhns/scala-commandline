@@ -14,7 +14,7 @@ libraryDependencies += "de.lolhens" %% "scala-commandline" % "0.0.1"
 ```scala
 case class Options(help: Boolean,
                    version: Boolean,
-                   logLevel: String,
+                   logLevel: Option[String],
                    decode: Boolean,
                    validate: Boolean,
                    params: Seq[String])
