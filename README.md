@@ -7,7 +7,7 @@ A small state-monad-based command line parser library written in scala
 
 ### build.sbt
 ```sbt
-libraryDependencies += "de.lolhens" %% "scala-commandline" % "0.0.1"
+libraryDependencies += "de.lolhens" %% "scala-commandline" % "0.1.0"
 ```
 
 ## Example
