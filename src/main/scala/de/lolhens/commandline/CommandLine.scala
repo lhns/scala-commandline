@@ -66,7 +66,23 @@ object CommandLine {
 
   def opt(isOpt: String => Boolean): Opt = new Opt(isOpt)
 
-  def opt(name: String*): Opt = new Opt(name.contains)
+  def opt(names: Seq[String], aliases: Seq[String]): Opt = {
+    val aliasesWithoutDashes = aliases.map(_.dropWhile(_ == '-'))
+    opt { e =>
+      names.contains(e) || (e.span(_ == '-') match {
+        case ("-", opts) => aliasesWithoutDashes.exists(opts.contains)
+        case _ => false
+      })
+    }
+  }
+
+  def opt(name: String*): Opt = {
+    val (aliases, names) = name.partition { e =>
+      val (dashes, opts) = e.span(_ == '-')
+      dashes.length <= 1 && opts.length == 1
+    }
+    opt(names, aliases)
+  }
 
   val args: IndexedState[CommandLine, Unit, Seq[String]] = IndexedState { args =>
     ((), args.args)
