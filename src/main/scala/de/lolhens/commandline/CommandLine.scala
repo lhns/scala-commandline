@@ -91,7 +91,9 @@ object CommandLine {
       else e.span(_ == '-') match {
         case ("-", opts) => aliasesWithoutDashes.collectFirst {
           case alias if opts.contains(alias) =>
-            Seq("-" + opts.replaceFirst(Regex.quote(alias), ""))
+            Seq(opts.replaceFirst(Regex.quote(alias), ""))
+              .filterNot(_.isEmpty)
+              .map("-" + _)
         }
 
         case _ => None
