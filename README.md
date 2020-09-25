@@ -24,7 +24,7 @@ def main(args: Array[String]): Unit = {
     for {
       empty <- CommandLine.isEmpty
       help <- CommandLine.opt("-h", "--help").flag
-      version <- CommandLine.opt("-v", "--version").flag
+      version <- CommandLine.opt("--version").flag
       logLevel <- CommandLine.opt("--loglevel").arg.map(_.lastOption)
       decode <- CommandLine.opt("-d", "--decode").flag
       validate <- CommandLine.opt("--validate").flag
