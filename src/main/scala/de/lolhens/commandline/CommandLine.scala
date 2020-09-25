@@ -3,6 +3,8 @@ package de.lolhens.commandline
 import cats.data.{IndexedState, State}
 import cats.syntax.option._
 
+import scala.util.matching.Regex
+
 case class CommandLine private(private val implicitOptsPart: Seq[String],
                                private val explicitArgsPart: Option[Seq[String]]) {
   private def withImplicitOptsPart(implicitOptsPart: Seq[String]): CommandLine =
@@ -30,14 +32,30 @@ object CommandLine {
     args.isEmpty
   }
 
-  sealed class Opt private[CommandLine](isOpt: String => Boolean) {
+  sealed class Opt private[CommandLine](isOpt: String => Option[Seq[String]]) {
     def extract[A](f: (String, Seq[String]) => (A, Seq[String])): State[CommandLine, Seq[A]] = {
       def extractOptsRec(parts: Seq[String]): (List[A], Seq[String]) = {
-        val (beforeOpt, atOpt) = parts.span(!isOpt(_))
+        val (beforeOpt, atOpt, newOpts) =
+          parts.zipWithIndex.collectFirst(Function.unlift {
+            case (part, index) => isOpt(part) match {
+              case Some(newOpts) => Some((index, newOpts))
+              case None => None
+            }
+
+            case _ => None
+          }) match {
+            case Some((index, newOpts)) =>
+              val (beforeOpt, atOpt) = parts.splitAt(index)
+              (beforeOpt, atOpt, newOpts)
+
+            case None =>
+              (parts, Seq.empty, Seq.empty)
+          }
+
         atOpt match {
           case opt +: afterOpt =>
             val (args, afterArgs) = f(opt, afterOpt)
-            val (nextArgs, remaining) = extractOptsRec(afterArgs)
+            val (nextArgs, remaining) = extractOptsRec(newOpts ++ afterArgs)
             (args +: nextArgs, beforeOpt ++ remaining)
 
           case _ =>
@@ -64,15 +82,20 @@ object CommandLine {
       flagOccurrences.map(_ > 0)
   }
 
-  def opt(isOpt: String => Boolean): Opt = new Opt(isOpt)
+  def opt(isOpt: String => Option[Seq[String]]): Opt = new Opt(isOpt)
 
   def opt(names: Seq[String], aliases: Seq[String]): Opt = {
     val aliasesWithoutDashes = aliases.map(_.dropWhile(_ == '-'))
     opt { e =>
-      names.contains(e) || (e.span(_ == '-') match {
-        case ("-", opts) => aliasesWithoutDashes.exists(opts.contains)
-        case _ => false
-      })
+      if (names.contains(e)) Some(Seq.empty)
+      else e.span(_ == '-') match {
+        case ("-", opts) => aliasesWithoutDashes.collectFirst {
+          case alias if opts.contains(alias) =>
+            Seq("-" + opts.replaceFirst(Regex.quote(alias), ""))
+        }
+
+        case _ => None
+      }
     }
   }
 
