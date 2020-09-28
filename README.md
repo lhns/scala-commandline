@@ -31,7 +31,7 @@ def main(args: Array[String]): Unit = {
       logLevel <- CommandLine.opt("--loglevel").arg.map(_.lastOption)
       decode <- CommandLine.opt("-d", "--decode").flag
       validate <- CommandLine.opt("--validate").flag
-      _ <- CommandLine.errorOnUnrecognizedOpts
+      _ <- CommandLine.errorOnUnrecognizedOpts()
       params <- CommandLine.args
     } yield Options(
       help = default.empty || default.help,

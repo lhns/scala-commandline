@@ -132,11 +132,11 @@ object CommandLine {
     })
   }
 
-  val errorOnUnrecognizedOpts: State[CommandLine, Unit] =
+  def errorOnUnrecognizedOpts(info: => String = "Try '--help' for more information."): State[CommandLine, Unit] =
     for {
       opts <- CommandLine.unrecognizedOpts
     } yield if (opts.nonEmpty) {
-      System.err.println(opts.map(opt => s"unrecognized option '$opt'").mkString("\n"))
+      System.err.println((opts.map(opt => s"unrecognized option '$opt'") ++ Seq(info).filter(_.nonEmpty)).mkString("\n"))
       System.exit(2)
     }
 
