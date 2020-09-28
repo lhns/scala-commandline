@@ -22,16 +22,20 @@ case class Options(help: Boolean,
 def main(args: Array[String]): Unit = {
   val options: Options = CommandLine(args) {
     for {
+      default <- CommandLine.defaultOpts()
+      /* shorthand for:
       empty <- CommandLine.isEmpty
       help <- CommandLine.opt("-h", "--help").flag
       version <- CommandLine.opt("--version").flag
+      */
       logLevel <- CommandLine.opt("--loglevel").arg.map(_.lastOption)
       decode <- CommandLine.opt("-d", "--decode").flag
       validate <- CommandLine.opt("--validate").flag
+      _ <- CommandLine.errorOnUnrecognizedOpts
       params <- CommandLine.args
     } yield Options(
-      help = empty || help,
-      version = version,
+      help = default.empty || default.help,
+      version = default.version,
       logLevel = logLevel,
       decode = decode,
       validate = validate,

@@ -104,10 +104,41 @@ object CommandLine {
   def opt(name: String*): Opt = {
     val (aliases, names) = name.partition { e =>
       val (dashes, opts) = e.span(_ == '-')
-      dashes.length <= 1 && opts.length == 1
+      dashes.length == 1 && opts.length == 1
     }
     opt(names, aliases)
   }
+
+  case class DefaultOpts(empty: Boolean,
+                         help: Boolean,
+                         version: Boolean)
+
+  def defaultOpts(helpAliases: Seq[String] = Seq("--help", "-h"),
+                  versionAliases: Seq[String] = Seq("--version")): State[CommandLine, DefaultOpts] =
+    for {
+      empty <- CommandLine.isEmpty
+      help <- CommandLine.opt(helpAliases: _*).flag
+      version <- CommandLine.opt(versionAliases: _*).flag
+    } yield DefaultOpts(
+      empty,
+      help,
+      version
+    )
+
+  val unrecognizedOpts: State[CommandLine, Seq[String]] = State { args =>
+    (args, args.implicitOptsPart.filter { arg =>
+      val (dashes, opts) = arg.span(_ == '-')
+      (dashes.length == 1 || dashes.length == 2) && opts.length >= 1
+    })
+  }
+
+  val errorOnUnrecognizedOpts: State[CommandLine, Unit] =
+    for {
+      opts <- CommandLine.unrecognizedOpts
+    } yield if (opts.nonEmpty) {
+      System.err.println(opts.map(opt => s"unrecognized option '$opt'").mkString("\n"))
+      System.exit(2)
+    }
 
   val args: IndexedState[CommandLine, Unit, Seq[String]] = IndexedState { args =>
     ((), args.args)
