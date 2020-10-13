@@ -1,4 +1,5 @@
 # scala-commandline
+[![Test Workflow](https://github.com/LolHens/scala-commandline/workflows/test/badge.svg)](https://github.com/LolHens/scala-commandline/actions?query=workflow%3Atest)
 [![Release Notes](https://img.shields.io/github/release/LolHens/scala-commandline.svg?maxAge=3600)](https://github.com/LolHens/scala-commandline/releases/latest)
 [![Maven Central](https://img.shields.io/maven-central/v/de.lolhens/scala-commandline_2.13)](https://search.maven.org/artifact/de.lolhens/scala-commandline_2.13)
 [![Apache License 2.0](https://img.shields.io/github/license/LolHens/scala-commandline.svg?maxAge=3600)](https://www.apache.org/licenses/LICENSE-2.0)
