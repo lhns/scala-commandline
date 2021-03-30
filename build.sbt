@@ -21,7 +21,7 @@ developers := List(
 )
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % "2.4.2",
+  "org.typelevel" %% "cats-core" % "2.5.0",
 )
 
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
