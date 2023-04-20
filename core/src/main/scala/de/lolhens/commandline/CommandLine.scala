@@ -41,8 +41,6 @@ object CommandLine {
               case Some(newOpts) => Some((index, newOpts))
               case None => None
             }
-
-            case _ => None
           }) match {
             case Some((index, newOpts)) =>
               val (beforeOpt, atOpt) = parts.splitAt(index)
